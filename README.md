@@ -12,4 +12,5 @@ Note that the plugin folder should be named `link-shortener`. This is because if
 
 ## Filter hooks
 
-* `sf_link_post_type_args` - Filters the default arguments for creating the link custom post type
+* `ls_link_post_type_args` - Filters the default arguments for creating the link custom post type
+* `ls_slug` - Filters the slug for shortened links (default: 'link')
