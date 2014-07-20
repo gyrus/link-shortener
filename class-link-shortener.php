@@ -122,6 +122,9 @@ class Link_Shortener {
 	 */
 	public static function activate( $network_wide ) {
 
+		// Flush rewrite rules for endpoint
+		flush_rewrite_rules();
+
 	}
 
 	/**
@@ -132,6 +135,9 @@ class Link_Shortener {
 	 * @param    boolean    $network_wide    True if WPMU superadmin uses "Network Deactivate" action, false if WPMU is disabled or plugin is deactivated on an individual blog.
 	 */
 	public static function deactivate( $network_wide ) {
+
+		// Flush rewrite rules for endpoint
+		flush_rewrite_rules();
 
 	}
 
