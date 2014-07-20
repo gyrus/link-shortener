@@ -10,7 +10,12 @@ Note that the plugin folder should be named `link-shortener`. This is because if
 ## Basic usage
 
 
+## Constants
+
+Set these in `wp-config.php`. They're designed to be configurable, but to not change once they're set.
+
+* `LS_ENDPOINT_NAME` - The name for the redirect endpoint (default: 'link')
+
 ## Filter hooks
 
 * `ls_link_post_type_args` - Filters the default arguments for creating the link custom post type
-* `ls_slug` - Filters the slug for shortened links (default: 'link')

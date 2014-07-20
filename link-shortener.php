@@ -24,6 +24,11 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+// Initialize constants
+if ( ! defined( 'LS_ENDPOINT_NAME' ) ) {
+	define( 'LS_ENDPOINT_NAME', 'link' );
+}
+
 require_once( plugin_dir_path( __FILE__ ) . 'class-link-shortener.php' );
 
 // Register hooks that are fired when the plugin is activated, deactivated, and uninstalled, respectively.
