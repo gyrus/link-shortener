@@ -353,21 +353,21 @@ class Link_Shortener {
 	public function views_ls_link_edit( $views ) {
 		global $wpdb;
 
-		// Get count
+		// Get count for 4xx status codes
 		$count = $wpdb->get_var("
 			SELECT	COUNT(*)
 			FROM	$wpdb->postmeta
 			WHERE	meta_key 	= '_ls_link_status'
-			AND		meta_value	= '404'
+			AND		meta_value	LIKE '4__'
 		");
 
 		// Add view
-		$view = '<a href="' . esc_url( add_query_arg( array( 'status_code' => 404 ) ) ) . '"';
-		if ( isset( $_GET['status_code'] ) && $_GET['status_code'] == '404' ) {
+		$view = '<a href="' . esc_url( add_query_arg( array( 'status_code' => '4xx' ) ) ) . '"';
+		if ( isset( $_GET['status_code'] ) && $_GET['status_code'] == '4xx' ) {
 			$view .= ' class="current"';
 		}
-		$view .= '>' . __( '404 statuses', $this->plugin_slug ) . '</a> (' . $count . ')';
-		$views['404'] = $view;
+		$view .= '>' . __( '4xx statuses', $this->plugin_slug ) . '</a> (' . $count . ')';
+		$views['4xx'] = $view;
 
 		return $views;
 	}
@@ -382,9 +382,18 @@ class Link_Shortener {
 
 		if ( $pagenow == 'edit.php' && $query->is_admin && isset( $_REQUEST['status_code'] ) && $_REQUEST['status_code'] ) {
 
+			// Replace any 'x' placeholders
+			$status_code = str_replace( 'x', '_', $_REQUEST['status_code'] );
+
 			// Set status code filter
-			$query->set( 'meta_key', '_ls_link_status' );
-			$query->set( 'meta_value', $_REQUEST['status_code'] );
+			$query->meta_query = new WP_Meta_Query( array(
+				array(
+					'key'		=> '_ls_link_status',
+					'value'		=> $status_code,
+					'compare'	=> 'LIKE'
+				)
+			));
+			echo '<pre>'; print_r( $query ); echo '</pre>'; exit;
 
 		}
 
@@ -656,7 +665,7 @@ class Link_Shortener {
 
 		// Error?
 		if ( is_wp_error( $headers ) ) {
-			$headers = array( 'response' => array( 'code' => 404 ) );
+			$headers = array( 'response' => array( 'code' => '4xx' ) );
 		}
 
 		// Store the status
