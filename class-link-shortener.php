@@ -393,7 +393,7 @@ class Link_Shortener {
 					'compare'	=> 'LIKE'
 				)
 			));
-			echo '<pre>'; print_r( $query ); echo '</pre>'; exit;
+			//echo '<pre>'; print_r( $query ); echo '</pre>'; exit;
 
 		}
 
