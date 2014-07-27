@@ -516,7 +516,10 @@ class Link_Shortener {
 		add_meta_box(
 			'ls-shortened-link',
 			__( 'The shortened link', $this->plugin_slug ),
-			array( $this, 'shortened_link_meta_box' )
+			array( $this, 'shortened_link_meta_box' ),
+			'ls_link',
+			'normal',
+			'high'
 		);
 
 	}
