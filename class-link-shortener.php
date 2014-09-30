@@ -724,8 +724,7 @@ class Link_Shortener {
 
 			<p>
 
-				<?php echo trailingslashit( site_url() ) . LS_ENDPOINT_NAME . '/'; ?>
-				<input name="ls-shortlink-id" id="ls-shortlink-id" type="text" placeholder="<?php echo __( 'e.g.' ) . ' 63'; ?>" class="<?php echo esc_attr( implode( ' ', $input_class ) ); ?>">
+				<?php echo trailingslashit( site_url() ) . LS_ENDPOINT_NAME . '/'; ?><input name="ls-shortlink-id" id="ls-shortlink-id" type="text" placeholder="<?php echo __( 'e.g.' ) . ' 63'; ?>" class="<?php echo esc_attr( implode( ' ', $input_class ) ); ?>">
 				<input type="submit" value="<?php echo esc_attr( $button_text ); ?>" class="<?php echo esc_attr( implode( ' ', $button_class ) ); ?>">
 
 				<?php wp_nonce_field( $this->plugin_slug . '_visit_shortlink', $this->plugin_slug . '_visit_shortlink_nonce' ); ?>
