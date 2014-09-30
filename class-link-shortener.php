@@ -90,6 +90,7 @@ class Link_Shortener {
 
 		// Other hooks
 		add_action( 'init', array( $this, 'register_custom_post_types' ), 0 );
+		add_action( 'init', array( $this, 'process_visit_shortlink_form' ) );
 		add_action( 'template_redirect', array( $this, 'template_redirect' ) );
 		add_action( 'save_post', array( $this, 'save_post' ) );
 		add_action( 'transition_post_status', array( $this, 'transition_post_status' ), 10, 3 );
@@ -673,6 +674,89 @@ class Link_Shortener {
 
 		// Store the status
 		update_post_meta( $link_id, '_ls_link_status', $headers['response']['code'] );
+
+	}
+
+	/**
+	 * Output a form for easily visiting a shortlink
+	 *
+	 * @since	0.1
+	 * @param	string	$label			Default: 'Visit a shortlink'
+	 * @param	mixed	$input_class	Default: ''; can be string or array of strings
+	 * @param	mixed	$button_class	Default: ''; can be string or array of strings
+	 * @param	string	$button_text	Default: 'Go »'
+	 * @return	void
+	 */
+	public function visit_shortlink_form( $label = null, $input_class = '', $button_class = '', $button_text = null ) {
+
+		// Initialise
+		if ( is_null( $label ) ) {
+			$label = __( 'Visit a shortlink', $this->plugin_slug );
+		}
+		$label_class = '';
+		if ( isset( $_POST['ls-shortlink-id'] ) ) {
+			$label = __( 'Please enter a valid shortlink ID.' );
+			$label_class = 'ls-error';
+		}
+		if ( is_string( $input_class ) ) {
+			$input_class = array( $input_class );
+		}
+		if ( ! is_array( $input_class ) ) {
+			$input_class = array();
+		}
+		if ( is_string( $button_class ) ) {
+			$button_class = array( $button_class );
+		}
+		if ( ! is_array( $button_class ) ) {
+			$button_class = array();
+		}
+		if ( is_null( $button_text ) ) {
+			$button_text = __( 'Go', $this->plugin_slug ) . ' &raquo;';
+		}
+
+		?>
+
+		<form action="#ls-visit-shortlink-form" id="ls-visit-shortlink-form" method="POST">
+
+			<p>
+				<label for="ls-shortlink-id" class="<?php echo $label_class; ?>"><?php echo $label; ?></label>
+			</p>
+
+			<p>
+
+				<?php echo trailingslashit( site_url() ) . LS_ENDPOINT_NAME . '/'; ?>
+				<input name="ls-shortlink-id" id="ls-shortlink-id" type="text" placeholder="<?php echo __( 'e.g.' ) . ' 63'; ?>" class="<?php echo esc_attr( implode( ' ', $input_class ) ); ?>">
+				<input type="submit" value="<?php echo esc_attr( $button_text ); ?>" class="<?php echo esc_attr( implode( ' ', $button_class ) ); ?>">
+
+				<?php wp_nonce_field( $this->plugin_slug . '_visit_shortlink', $this->plugin_slug . '_visit_shortlink_nonce' ); ?>
+
+			</p>
+
+		</form>
+
+		<?php
+
+	}
+
+	/**
+	 * Process the visit shortlink form
+	 *
+	 * @since    0.1
+	 */
+	public function process_visit_shortlink_form() {
+
+		// Submitted and valid?
+		if ( isset( $_POST[ $this->plugin_slug . '_visit_shortlink_nonce' ] ) && wp_verify_nonce( $_POST[ $this->plugin_slug . '_visit_shortlink_nonce' ], $this->plugin_slug . '_visit_shortlink' ) ) {
+
+			if ( $link = get_the_title( intval( $_POST['ls-shortlink-id'] ) ) ) {
+
+				// Redirect
+				wp_redirect( $link, 301 );
+				exit;
+
+			}
+
+		}
 
 	}
 

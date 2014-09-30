@@ -15,6 +15,10 @@ Set these in `wp-config.php`. They're designed to be configurable, but to not ch
 
 * `LS_ENDPOINT_NAME` - The name for the redirect endpoint (default: 'link')
 
+## Functions
+
+* `ls_visit_shortlink_form( $label = 'Visit a shortlink', $input_class = '', $button_class = '', $button_text = 'Go »' )` - Outputs a form for easily visiting a shortlink
+
 ## Filter hooks
 
 * `ls_link_post_type_args` - Filters the default arguments for creating the link custom post type
