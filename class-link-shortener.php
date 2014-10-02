@@ -90,7 +90,6 @@ class Link_Shortener {
 
 		// Other hooks
 		add_action( 'init', array( $this, 'register_custom_post_types' ), 0 );
-		add_action( 'init', array( $this, 'process_visit_shortlink_form' ) );
 		add_action( 'template_redirect', array( $this, 'template_redirect' ) );
 		add_action( 'save_post', array( $this, 'save_post' ) );
 		add_action( 'transition_post_status', array( $this, 'transition_post_status' ), 10, 3 );
@@ -571,26 +570,37 @@ class Link_Shortener {
 	}
 
 	/**
-	 * Template redirect to catch endpoint
+	 * Template redirect to catch endpoint or form submission
 	 *
 	 * @since	0.1
 	 * @return	void
 	 */
 	public function template_redirect() {
 		global $wp_query;
+		$link_id = null;
 
 		// Is a valid endpoint set?
-		if ( isset( $wp_query->query_vars[ LS_ENDPOINT_NAME ] ) && ctype_digit( $wp_query->query_vars[ LS_ENDPOINT_NAME ] ) ) {
+		if ( isset( $wp_query->query_vars[ LS_ENDPOINT_NAME ] ) ) {
 
-			// Try to get the link
-			if ( $link = get_the_title( $wp_query->query_vars[ LS_ENDPOINT_NAME ] ) ) {
+			// Try to get the link ID
+			$link_id = intval( $wp_query->query_vars[ LS_ENDPOINT_NAME ] );
 
-				// Redirect
-				wp_redirect( $link, 301 );
-				exit;
+		} else if ( isset( $_POST[ $this->plugin_slug . '_visit_shortlink_nonce' ] ) && wp_verify_nonce( $_POST[ $this->plugin_slug . '_visit_shortlink_nonce' ], $this->plugin_slug . '_visit_shortlink' ) ) {
+
+			// Valid form submitted
+			if ( ! $link_id = intval( $_POST['ls-shortlink-id'] ) ) {
+
+				// Back to form for error
+				wp_redirect( get_permalink() . '#ls-visit-shortlink-form' );
 
 			}
 
+		}
+
+		// Redirect?
+		if ( ! is_null( $link_id ) && $link = get_the_title( $link_id ) ) {
+			wp_redirect( $link, 301 );
+			exit;
 		}
 
 		return;
@@ -694,7 +704,7 @@ class Link_Shortener {
 			$label = __( 'Visit a shortlink', $this->plugin_slug );
 		}
 		$label_class = '';
-		if ( isset( $_POST['ls-shortlink-id'] ) ) {
+		if ( isset( $_GET['ls-error'] ) && $_GET['ls-error'] == 'invalid-id' ) {
 			$label = __( 'Please enter a valid shortlink ID.' );
 			$label_class = 'ls-error';
 		}
@@ -716,7 +726,7 @@ class Link_Shortener {
 
 		?>
 
-		<form action="#ls-visit-shortlink-form" id="ls-visit-shortlink-form" method="POST">
+		<form action="" id="ls-visit-shortlink-form" method="POST">
 
 			<p>
 				<label for="ls-shortlink-id" class="<?php echo $label_class; ?>"><?php echo $label; ?></label>
@@ -733,29 +743,7 @@ class Link_Shortener {
 
 		</form>
 
-		<?php
-
-	}
-
-	/**
-	 * Process the visit shortlink form
-	 *
-	 * @since    0.1
-	 */
-	public function process_visit_shortlink_form() {
-
-		// Submitted and valid?
-		if ( isset( $_POST[ $this->plugin_slug . '_visit_shortlink_nonce' ] ) && wp_verify_nonce( $_POST[ $this->plugin_slug . '_visit_shortlink_nonce' ], $this->plugin_slug . '_visit_shortlink' ) ) {
-
-			if ( $link = get_the_title( intval( $_POST['ls-shortlink-id'] ) ) ) {
-
-				// Redirect
-				wp_redirect( $link, 301 );
-				exit;
-
-			}
-
-		}
+	<?php
 
 	}
 
