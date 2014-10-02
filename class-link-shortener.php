@@ -569,6 +569,27 @@ class Link_Shortener {
 		return $placeholder;
 	}
 
+
+	/**
+	 * Get the title
+	 *
+	 * get_the_title() will strip some valid URL characters, so we do our own escaping here
+	 *
+	 * @since	0.1
+	 * @param	int		$post_id
+	 * @return	string
+	 */
+	public function get_raw_title( $post_id ) {
+		$title = '';
+
+		if ( is_object( $post = get_post( $post_id ) ) ) {
+			// So far I've only had problems with Flickr URLs with @
+			$title = str_replace( array( '@' ), array( '%40' ), $post->post_title );
+		}
+
+		return $title;
+	}
+
 	/**
 	 * Template redirect to catch endpoint or form submission
 	 *
@@ -598,7 +619,7 @@ class Link_Shortener {
 		}
 
 		// Redirect?
-		if ( ! is_null( $link_id ) && $link = get_the_title( $link_id ) ) {
+		if ( ! is_null( $link_id ) && $link = $this->get_raw_title( $link_id ) ) {
 			wp_redirect( $link, 301 );
 			exit;
 		}
@@ -671,7 +692,7 @@ class Link_Shortener {
 
 		// Get the URL?
 		if ( ! $link_url ) {
-			$link_url = get_the_title( $link_id );
+			$link_url = $this->get_raw_title( $link_id );
 		}
 
 		// Get just the headers
