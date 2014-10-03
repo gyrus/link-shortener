@@ -609,19 +609,25 @@ class Link_Shortener {
 		} else if ( isset( $_POST[ $this->plugin_slug . '_visit_shortlink_nonce' ] ) && wp_verify_nonce( $_POST[ $this->plugin_slug . '_visit_shortlink_nonce' ], $this->plugin_slug . '_visit_shortlink' ) ) {
 
 			// Valid form submitted
-			if ( ! $link_id = intval( $_POST['ls-shortlink-id'] ) ) {
+			$link_id = intval( $_POST['ls-shortlink-id'] );
+			if ( $link_id == 0 ) {
 
 				// Back to form for error
-				wp_redirect( get_permalink() . '#ls-visit-shortlink-form' );
+				wp_redirect( add_query_arg( 'ls-error', 'invalid-id' ) . '#ls-visit-shortlink-form' );
+				exit;
 
 			}
 
 		}
 
 		// Redirect?
-		if ( ! is_null( $link_id ) && $link = $this->get_raw_title( $link_id ) ) {
-			wp_redirect( $link, 301 );
-			exit;
+		if ( ! is_null( $link_id ) ) {
+			if ( $link = $this->get_raw_title( $link_id ) ) {
+				wp_redirect( $link, 301 );
+				exit;
+			} else {
+				wp_die( 'The link ID you gave - ' . $link_id . ' - isn\'t valid on this site. Please try again!', $this->plugin_slug );
+			}
 		}
 
 		return;
@@ -726,7 +732,7 @@ class Link_Shortener {
 		}
 		$label_class = '';
 		if ( isset( $_GET['ls-error'] ) && $_GET['ls-error'] == 'invalid-id' ) {
-			$label = __( 'Please enter a valid shortlink ID.' );
+			$label = __( 'Please enter a valid shortlink ID' );
 			$label_class = 'ls-error';
 		}
 		if ( is_string( $input_class ) ) {
@@ -755,7 +761,7 @@ class Link_Shortener {
 
 			<p>
 
-				<?php echo trailingslashit( site_url() ) . LS_ENDPOINT_NAME . '/'; ?><input name="ls-shortlink-id" id="ls-shortlink-id" type="text" placeholder="<?php echo __( 'e.g.' ) . ' 63'; ?>" class="<?php echo esc_attr( implode( ' ', $input_class ) ); ?>">
+				<?php echo trailingslashit( site_url() ) . LS_ENDPOINT_NAME . '/'; ?><input name="ls-shortlink-id" id="ls-shortlink-id" type="text" placeholder="<?php echo __( 'e.g.' ) . ' 108'; ?>" class="<?php echo esc_attr( implode( ' ', $input_class ) ); ?>">
 				<input type="submit" value="<?php echo esc_attr( $button_text ); ?>" class="<?php echo esc_attr( implode( ' ', $button_class ) ); ?>">
 
 				<?php wp_nonce_field( $this->plugin_slug . '_visit_shortlink', $this->plugin_slug . '_visit_shortlink_nonce' ); ?>
